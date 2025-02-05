@@ -1,12 +1,13 @@
 import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function GET(req) {
   try {
     const users = await prisma.user.findMany();
     return NextResponse.json(users, { status: 200 });
   } catch (error) {
-    return NextResponse.json({ error: "Failed to fetch users" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to fetch users", details: error.message }, { status: 500 });
   }
 }
 
@@ -53,8 +54,8 @@ export async function DELETE(req) {
     const { searchParams } = new URL(req.url);
     const id = searchParams.get("id");
 
-    if (!id) {
-      return NextResponse.json({ error: "User ID is required" }, { status: 400 });
+    if (!id || isNaN(parseInt(id))) {
+      return NextResponse.json({ error: "User ID is required and must be a valid number" }, { status: 400 });
     }
 
     const deletedUser = await prisma.user.delete({ where: { id: parseInt(id) } });
